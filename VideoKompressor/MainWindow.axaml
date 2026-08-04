@@ -1,0 +1,130 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:VideoKompressor.ViewModels"
+        xmlns:local="using:VideoKompressor"
+        x:DataType="vm:MainWindowViewModel"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        MinWidth="800" MinHeight="600"
+        MaxWidth="800" MaxHeight="600"
+        x:Class="VideoKompressor.MainWindow"
+        Title="Video Kompressor">
+
+    <Grid Margin="32,24" RowDefinitions="*,Auto">
+
+        <!-- ===== Main area ===== -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,230">
+
+            <!-- Left column: settings -->
+            <StackPanel Grid.Column="0" Spacing="32" Margin="0,32,24,0">
+
+                <!-- Hardware -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Hardware:"
+                               FontWeight="SemiBold"
+                               ToolTip.Tip="CPU encoding is slower but gives better quality per megabyte. GPU encoding is much faster."/>
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <RadioButton GroupName="Hardware"
+                                     Content="CPU"
+                                     IsChecked="{Binding UseCpu}"/>
+                        <RadioButton GroupName="Hardware"
+                                     Content="GPU:"
+                                     IsChecked="{Binding UseGpu}"/>
+                        <ComboBox Width="190"
+                                  VerticalAlignment="Center"
+                                  ItemsSource="{Binding GpuOptions}"
+                                  SelectedItem="{Binding SelectedGpu}"
+                                  IsEnabled="{Binding UseGpu}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Encoding -->
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Encoding:"
+                               FontWeight="SemiBold"
+                               ToolTip.Tip="H.264 plays everywhere. HEVC gives smaller files. AV1 gives the smallest files but encodes slowest."/>
+                    <StackPanel Orientation="Horizontal" Spacing="24">
+                        <RadioButton GroupName="Codec" Content="H.264" IsChecked="{Binding CodecH264}"/>
+                        <RadioButton GroupName="Codec" Content="HEVC"  IsChecked="{Binding CodecHevc}"/>
+                        <RadioButton GroupName="Codec" Content="AV1"   IsChecked="{Binding CodecAv1}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Compression target -->
+                <StackPanel Orientation="Horizontal" Spacing="32">
+                    <ComboBox Width="140"
+                              ItemsSource="{Binding Modes}"
+                              SelectedItem="{Binding SelectedMode}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Target size:"
+                                   VerticalAlignment="Center"
+                                   ToolTip.Tip="A percentage of the original file size, a video bit-rate, or a target file size — depending on the selected mode."/>
+                        <TextBox Width="70" Text="{Binding TargetValue}"/>
+                        <TextBlock Text="{Binding TargetSuffix}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </StackPanel>
+
+            <!-- Right column: selected file -->
+            <StackPanel Grid.Column="1" Spacing="10" VerticalAlignment="Top" Margin="0,8,0,0">
+                <TextBlock Text="{Binding InputFileName}"
+                           HorizontalAlignment="Center"
+                           MaxWidth="220"
+                           TextTrimming="CharacterEllipsis"/>
+                <Border Height="130"
+                        BorderBrush="#d4d4d4"
+                        BorderThickness="2"
+                        CornerRadius="6"
+                        ClipToBounds="True">
+                    <Panel>
+                        <TextBlock Foreground="#909090"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding ThumbnailPath, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+                        <Image Source="{Binding ThumbnailPath, Converter={x:Static local:Converters.PathToBitmap}}"
+                               Stretch="Uniform"
+                               IsVisible="{Binding ThumbnailPath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                    </Panel>
+                </Border>
+                <Button Content="Add File"
+                        HorizontalAlignment="Center"
+                        Click="OnAddFileClick"/>
+            </StackPanel>
+
+        </Grid>
+
+        <!-- ===== Bottom bar ===== -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto">
+
+            <StackPanel Grid.Column="0" 
+                        Spacing="16" 
+                        Orientation="Horizontal"
+                        VerticalAlignment="Bottom">
+
+                <Button Content="Compress"
+                        FontSize="16"
+                        Padding="28,8"
+                        Command="{Binding CompressCommand}"/>
+                <TextBlock 
+                        Text="{Binding Status}"
+                        MaxWidth="320"
+                        VerticalAlignment="Center"
+                        TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                <TextBlock Text="{Binding OutputFolderDisplay}"
+                        MaxWidth="280"
+                        TextTrimming="CharacterEllipsis"
+                        HorizontalAlignment="Right"/>
+                <Button Content="Set output folder"
+                        HorizontalAlignment="Right"
+                        Click="OnSetOutputFolderClick"/>
+            </StackPanel>
+
+        </Grid>
+
+    </Grid>
+</Window>
